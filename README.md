@@ -34,6 +34,26 @@ On send, Baudcast reads file bytes, packs them into frames, converts frame bits 
 
 On receive, Baudcast records audio from a microphone, slices it into symbol windows, measures which target frequency is stronger for each symbol, reconstructs the bitstream, finds frame boundaries from the preamble, and verifies integrity with CRC before writing the recovered bytes back to disk.
 
+## Quick Start
+
+```bash
+python3 demo.py
+```
+
+For live audio I/O, install the optional audio dependency:
+
+```bash
+pip install ".[audio]"
+```
+
+Then run either side of the transfer:
+
+```bash
+python3 -m baudcast devices
+python3 -m baudcast send ./message.txt
+python3 -m baudcast receive -o ./message.txt
+```
+
 ## License
 
 MIT
