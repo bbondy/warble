@@ -6,7 +6,7 @@ import math
 from collections.abc import Sequence
 
 from baudcast.config import BaudcastConfig, DEFAULT_CONFIG
-from baudcast.framing import extract_payloads_from_bits
+from baudcast.framing import extract_file_bytes_from_bits, extract_payloads_from_bits
 
 
 def goertzel_magnitude(samples: Sequence[float], frequency: float, sample_rate: int) -> float:
@@ -69,3 +69,22 @@ def recover_payloads_from_samples(
             best_score = len(payloads)
 
     return best_payloads
+
+
+def recover_file_bytes_from_samples(
+    samples: Sequence[float],
+    config: BaudcastConfig = DEFAULT_CONFIG,
+) -> bytes:
+    """Recover file bytes from audio samples."""
+    best_bytes = b""
+    best_score = -1
+    max_offset = min(config.samples_per_symbol, len(samples))
+
+    for offset in range(max_offset):
+        candidate_bits = samples_to_bits(samples, config, offset=offset)
+        payloads = extract_payloads_from_bits(candidate_bits, config)
+        if len(payloads) > best_score:
+            best_bytes = extract_file_bytes_from_bits(candidate_bits, config)
+            best_score = len(payloads)
+
+    return best_bytes

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import unittest
 
-from baudcast.demodulator import detect_bit, recover_payloads_from_samples, samples_to_bits
-from baudcast.framing import encode_frame, frame_to_bits
+from baudcast.demodulator import detect_bit, recover_file_bytes_from_samples, recover_payloads_from_samples, samples_to_bits
+from baudcast.framing import build_file_frames, encode_frame, frame_to_bits
 from baudcast.modulator import bits_to_samples, generate_tone
 
 
@@ -28,6 +28,13 @@ class DemodulatorTests(unittest.TestCase):
             bits.extend(frame_to_bits(encode_frame(payload)))
         shifted_samples = ([0.0] * 17) + bits_to_samples(bits)
         self.assertEqual(recover_payloads_from_samples(shifted_samples), payloads)
+
+    def test_recover_file_bytes_from_samples_round_trip(self) -> None:
+        bits = []
+        for frame in build_file_frames(b"loopback bytes"):
+            bits.extend(frame_to_bits(frame))
+        shifted_samples = ([0.0] * 11) + bits_to_samples(bits)
+        self.assertEqual(recover_file_bytes_from_samples(shifted_samples), b"loopback bytes")
 
 
 if __name__ == "__main__":

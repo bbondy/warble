@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from baudcast.framing import CRCMismatchError, chunk_file_bytes, crc16_ccitt, decode_frame, encode_frame, extract_payloads_from_bits, frame_to_bits
+from baudcast.framing import CRCMismatchError, build_file_frames, chunk_file_bytes, crc16_ccitt, decode_frame, encode_frame, extract_file_bytes_from_bits, extract_payloads_from_bits, frame_to_bits, recover_file_bytes
 
 
 class FramingTests(unittest.TestCase):
@@ -35,6 +35,19 @@ class FramingTests(unittest.TestCase):
         chunks = chunk_file_bytes(data)
         self.assertEqual(len(chunks[0]), 255)
         self.assertEqual(sum(len(chunk) for chunk in chunks), len(data))
+
+    def test_build_file_frames_ends_with_eof_frame(self) -> None:
+        frames = build_file_frames(b"abc")
+        self.assertEqual(decode_frame(frames[-1]), b"")
+
+    def test_recover_file_bytes_stops_at_eof(self) -> None:
+        self.assertEqual(recover_file_bytes([b"abc", b"def", b"", b"ignored"]), b"abcdef")
+
+    def test_extract_file_bytes_from_bits_round_trip(self) -> None:
+        bits: list[int] = []
+        for frame in build_file_frames(b"hello there"):
+            bits.extend(frame_to_bits(frame))
+        self.assertEqual(extract_file_bytes_from_bits(bits), b"hello there")
 
 
 if __name__ == "__main__":

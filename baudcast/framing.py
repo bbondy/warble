@@ -106,3 +106,28 @@ def extract_payloads_from_bits(
 def chunk_file_bytes(data: bytes, config: BaudcastConfig = DEFAULT_CONFIG) -> list[bytes]:
     """Split a file into frame-sized payloads."""
     return list(chunk_bytes(data, config.max_payload_size))
+
+
+def build_file_frames(data: bytes, config: BaudcastConfig = DEFAULT_CONFIG) -> list[bytes]:
+    """Convert file bytes into a sequence of framed payloads terminated by EOF."""
+    frames = [encode_frame(chunk, config) for chunk in chunk_file_bytes(data, config)]
+    frames.append(encode_frame(b"", config))
+    return frames
+
+
+def recover_file_bytes(payloads: Sequence[bytes]) -> bytes:
+    """Join payloads until the EOF marker is reached."""
+    output = bytearray()
+    for payload in payloads:
+        if payload == b"":
+            break
+        output.extend(payload)
+    return bytes(output)
+
+
+def extract_file_bytes_from_bits(
+    bits: Sequence[int],
+    config: BaudcastConfig = DEFAULT_CONFIG,
+) -> bytes:
+    """Recover file bytes from a bitstream containing zero or more frames."""
+    return recover_file_bytes(extract_payloads_from_bits(bits, config))
