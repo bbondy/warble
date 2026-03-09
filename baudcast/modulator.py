@@ -6,6 +6,7 @@ import math
 from collections.abc import Sequence
 
 from baudcast.config import BaudcastConfig, DEFAULT_CONFIG
+from baudcast.framing import build_file_frames, frame_to_bits
 
 
 def generate_tone(
@@ -36,3 +37,26 @@ def bits_to_samples(
     for bit in bits:
         output.extend(one_symbol if int(bit) else zero_symbol)
     return output
+
+
+def frames_to_samples(
+    frames: Sequence[bytes],
+    config: BaudcastConfig = DEFAULT_CONFIG,
+    *,
+    amplitude: float | None = None,
+) -> list[float]:
+    """Convert a frame sequence into audio samples."""
+    bits: list[int] = []
+    for frame in frames:
+        bits.extend(frame_to_bits(frame))
+    return bits_to_samples(bits, config, amplitude=amplitude)
+
+
+def file_bytes_to_samples(
+    data: bytes,
+    config: BaudcastConfig = DEFAULT_CONFIG,
+    *,
+    amplitude: float | None = None,
+) -> list[float]:
+    """Convert file bytes into the audio needed for transmission."""
+    return frames_to_samples(build_file_frames(data, config), config, amplitude=amplitude)
