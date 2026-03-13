@@ -4,6 +4,14 @@ Transfer files between computers using sound waves (speaker to microphone).
 
 Baudcast is a Python CLI tool that encodes files as audio tones and decodes them back. It works like an old-school modem, but through the air instead of phone lines.
 
+If you are new to the repository, start with these docs in order:
+
+1. [docs/repo-map.md](docs/repo-map.md)
+2. [docs/how-it-works.md](docs/how-it-works.md)
+3. [docs/quick-start.md](docs/quick-start.md)
+4. [docs/debugging.md](docs/debugging.md)
+5. [docs/glossary.md](docs/glossary.md)
+
 ## How It Works
 
 Baudcast uses 2-FSK modulation. Each bit is represented by one of two audio tones:
@@ -40,6 +48,8 @@ On receive, Baudcast records audio from a microphone, slices it into symbol wind
 python3 demo.py
 ```
 
+The safest first run is `demo.py`. It exercises the encoder and decoder entirely in memory, so it does not require live audio devices.
+
 Install the project into your virtualenv:
 
 ```bash
@@ -59,6 +69,15 @@ python3 -m baudcast devices
 python3 -m baudcast send ./message.txt
 python3 -m baudcast receive -o ./message.txt
 ```
+
+For a fuller beginner setup guide, see [docs/quick-start.md](docs/quick-start.md).
+
+## Repository Tour
+
+- [docs/repo-map.md](docs/repo-map.md): project purpose, entrypoints, major files, and execution overview
+- [docs/how-it-works.md](docs/how-it-works.md): send and receive flow traced through the real code
+- [docs/debugging.md](docs/debugging.md): where to look when audio I/O, framing, or decoding fail
+- [docs/glossary.md](docs/glossary.md): beginner explanations of the signal-processing terms used in the code
 
 ## License
 
